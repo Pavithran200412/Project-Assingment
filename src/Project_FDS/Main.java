@@ -75,6 +75,22 @@ public class Main {
         }
     }
 
+    private static int readUniqueRollno(
+            StudentFunction sf, int studentId) {
+        while (true) {
+            int rollno = readInteger("Enter Student Roll No: ");
+            if (rollno <= 0) {
+                System.out.println("Roll number must be positive!");
+            }
+            else if (sf.isDuplicateRollno(rollno, studentId)) {
+                System.out.println("Roll number already exists! Try another.");
+            }
+            else {
+                return rollno;
+            }
+        }
+    }
+
     public static void main(String[] args) {
 
         StudentFunction studentFunction = new StudentFunction();
@@ -114,7 +130,7 @@ public class Main {
                     int updateId = readInteger("Enter Student ID: ");
                     String newName = readName("Enter New Name: ");
                     int newAge = readAge("Enter New Age: ");
-                    int newRollno = readUniqueRollno(studentFunction);
+                    int newRollno = readUniqueRollno(studentFunction, updateId);
                     studentFunction.update(updateId, newName, newAge, newRollno);
                     break;
 
