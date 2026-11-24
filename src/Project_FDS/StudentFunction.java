@@ -22,6 +22,18 @@ public class StudentFunction {
         return false;
     }
 
+    // Check duplicate roll number while updating
+    public boolean isDuplicateRollno(int rollno, int studentId) {
+        for (StudentMain student : students) {
+            if (student.getRollno() == rollno &&
+                    student.getId() != studentId) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    //Check duplicate Roll no
     public boolean isDuplicateRollno(int rollno) {
         for (StudentMain student : students) {
             if (student.getRollno() == rollno) {
