@@ -6,39 +6,52 @@ public class StudentMain {
     private int age;
     private int rollno;
 
-    public StudentMain(int id, String name, int age, int rollno){
-        this.id = id;
-        this.name = name;
-        this.age = age;
-        this.rollno = rollno;
+    public StudentMain(int id, String name, int age, int rollno) {
+        setId(id);
+        setName(name);
+        setAge(age);
+        setRollno(rollno);
     }
 
-    public int getId(){
+    public int getId() {
         return id;
     }
-    public String getName(){
+    public String getName() {
         return name;
     }
-    public int getAge(){
+    public int getAge() {
         return age;
     }
-    public int getRollno(){
+    public int getRollno() {
         return rollno;
     }
 
-    public void setId(int id){
+
+    public void setId(int id) {
+        if (id <= 0) {
+            throw new IllegalArgumentException("ID must be positive.");
+        }
         this.id = id;
     }
-    public void setName(String name){
-        this.name = name;
+    public void setName(String name) {
+        if (name == null || name.trim().isEmpty()
+                || name.contains("|")) {
+            throw new IllegalArgumentException("Invalid student name.");
+        }
+        this.name = name.trim();
     }
-    public void setAge(int age){
+    public void setAge(int age) {
+        if (age <= 0 || age > 120) {
+            throw new IllegalArgumentException("Age must be between 1 and 120.");
+        }
         this.age = age;
     }
-    public void setRollno(int rollno){
+    public void setRollno(int rollno) {
+        if (rollno <= 0) {
+            throw new IllegalArgumentException("Roll number must be positive.");
+        }
         this.rollno = rollno;
     }
-
     @Override
     public String toString() {
         return "ID: " + id +
@@ -46,5 +59,4 @@ public class StudentMain {
                 ", Age: " + age +
                 ", Roll No: " + rollno;
     }
-
 }
