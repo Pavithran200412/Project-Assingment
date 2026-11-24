@@ -1,6 +1,7 @@
 package Project_FDS;
 
 public class StudentMain {
+
     private int id;
     private String name;
     private int age;
@@ -16,16 +17,18 @@ public class StudentMain {
     public int getId() {
         return id;
     }
+
     public String getName() {
         return name;
     }
+
     public int getAge() {
         return age;
     }
+
     public int getRollno() {
         return rollno;
     }
-
 
     public void setId(int id) {
         if (id <= 0) {
@@ -33,6 +36,7 @@ public class StudentMain {
         }
         this.id = id;
     }
+
     public void setName(String name) {
         if (name == null || name.trim().isEmpty()
                 || name.contains("|")) {
@@ -40,18 +44,21 @@ public class StudentMain {
         }
         this.name = name.trim();
     }
+
     public void setAge(int age) {
         if (age <= 0 || age > 120) {
             throw new IllegalArgumentException("Age must be between 1 and 120.");
         }
         this.age = age;
     }
+
     public void setRollno(int rollno) {
         if (rollno <= 0) {
             throw new IllegalArgumentException("Roll number must be positive.");
         }
         this.rollno = rollno;
     }
+
     @Override
     public String toString() {
         return "ID: " + id + ", Name: " + name + ", Age: " + age + ", Roll No: " + rollno;
