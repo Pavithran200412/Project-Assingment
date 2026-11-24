@@ -1,4 +1,3 @@
-
 package Project_FDS;
 
 import java.io.*;
@@ -13,11 +12,42 @@ public class StudentFunction {
         loadStudents();
     }
 
+    // Check duplicate ID
+    public boolean isDuplicateId(int id) {
+        for (StudentMain student : students) {
+            if (student.getId() == id) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean isDuplicateRollno(int rollno) {
+        for (StudentMain student : students) {
+            if (student.getRollno() == rollno) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     // Add Student
     public void add(StudentMain student) {
+        if (isDuplicateId(student.getId())) {
+            System.out.println("Student ID already exists!");
+            return;
+        }
+        if (isDuplicateRollno(student.getRollno())) {
+            System.out.println("Roll number already exists!");
+            return;
+        }
         students.add(student);
-        saveStudents();
-        System.out.println("Student added successfully!");
+        if (saveStudents()) {
+            System.out.println("Student added successfully!");
+        } else {
+            students.remove(student);
+            System.out.println("Add failed. Changes rolled back.");
+        }
     }
 
     // View Students
@@ -31,95 +61,107 @@ public class StudentFunction {
         }
     }
 
-    // Update
+    // Update Student
     public void update(int id, String name, int age, int rollno) {
         for (StudentMain student : students) {
             if (student.getId() == id) {
-                student.setName(name);
-                student.setAge(age);
-                student.setRollno(rollno);
-                saveStudents();
-
-                System.out.println("Student updated successfully!");
+                String oldName = student.getName();
+                int oldAge = student.getAge();
+                int oldRollno = student.getRollno();
+                try {
+                    student.setName(name);
+                    student.setAge(age);
+                    student.setRollno(rollno);
+                    if (saveStudents()) {
+                        System.out.println("Student updated successfully!");
+                    } else {
+                        student.setName(oldName);
+                        student.setAge(oldAge);
+                        student.setRollno(oldRollno);
+                        System.out.println("Update failed. Changes rolled back.");
+                    }
+                } catch (IllegalArgumentException e) {
+                    student.setName(oldName);
+                    student.setAge(oldAge);
+                    student.setRollno(oldRollno);
+                    System.out.println(e.getMessage());
+                }
                 return;
             }
         }
         System.out.println("Student ID not found!");
     }
 
-    // Delete
+    // Delete Student
     public void delete(int id) {
         for (int i = 0; i < students.size(); i++) {
             if (students.get(i).getId() == id) {
-                students.remove(i);
-                saveStudents();
-                System.out.println("Student deleted successfully!");
+                StudentMain removedStudent = students.remove(i);
+                if (saveStudents()) {
+                    System.out.println("Student deleted successfully!");
+                } else {
+                    students.add(i, removedStudent);
+                    System.out.println("Delete failed. Changes rolled back.");
+                }
                 return;
             }
         }
         System.out.println("Student ID not found!");
     }
-    // Save Students to File
-    private void saveStudents() {
+
+    // Save Students
+    private boolean saveStudents() {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename))) {
-
             for (StudentMain student : students) {
-                writer.write(
-                        student.getId() + "|" +
-                                student.getName() + "|" +
-                                student.getAge() + "|" +
-                                student.getRollno()
-                );
 
+                writer.write(student.getId() + "|" + student.getName() + "|" + student.getAge() + "|" + student.getRollno());
                 writer.newLine();
             }
-
-            System.out.println("Records saved to file!");
-
+            return true;
         } catch (IOException e) {
-            System.out.println("Error saving records!");
-            e.printStackTrace();
+            System.out.println("Error saving records: " + e.getMessage());
+            return false;
         }
     }
 
-    // Load Students from File
+    // Load Students
     private void loadStudents() {
-
         File file = new File(filename);
-
         if (!file.exists()) {
             System.out.println("File not found. Starting with empty records.");
             return;
         }
-
-        try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
-
+        int loaded = 0;
+        int skipped = 0;
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;
-
+            int lineNumber = 0;
             while ((line = reader.readLine()) != null) {
-
-                String[] data = line.split("\\|", -1);
-
-                if (data.length == 4) {
-
-                    int id = Integer.parseInt(data[0]);
-                    String name = data[1];
-                    int age = Integer.parseInt(data[2]);
-                    int rollno = Integer.parseInt(data[3]);
-
-                    StudentMain student = new StudentMain(
-                            id, name, age, rollno
-                    );
-
+                lineNumber++;
+                try {
+                    String[] data = line.split("\\|", -1);
+                    if (data.length != 4) {
+                        throw new IllegalArgumentException("Invalid format");
+                    }
+                    int id = Integer.parseInt(data[0].trim());
+                    String name = data[1].trim();
+                    int age = Integer.parseInt(data[2].trim());
+                    int rollno = Integer.parseInt(data[3].trim());
+                    StudentMain student = new StudentMain(id, name, age, rollno);
+                    if (isDuplicateId(id)) {
+                        throw new IllegalArgumentException("Duplicate ID");
+                    }
                     students.add(student);
+                    loaded++;
+                } catch (IllegalArgumentException e) {
+                    skipped++;
+                    System.out.println("Skipping invalid record at line " + lineNumber + ": " + e.getMessage());
                 }
             }
-
-            System.out.println("Student records loaded successfully!");
-
-        } catch (IOException | NumberFormatException e) {
-            System.out.println("Error loading records!");
-            e.printStackTrace();
+            System.out.println("Records loaded: " + loaded);
+            System.out.println("Invalid records skipped: " + skipped);
+        } catch (IOException e) {
+            System.out.println("Error loading records: " + e.getMessage());
         }
     }
 }
