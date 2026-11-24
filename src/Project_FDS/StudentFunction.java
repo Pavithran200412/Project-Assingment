@@ -6,9 +6,14 @@ import java.util.ArrayList;
 public class StudentFunction {
 
     private ArrayList<StudentMain> students = new ArrayList<>();
-    private final String filename = "Students_List.txt";
+    private final String filename = "N:\\Project-Assingment\\src\\Project_FDS\\Students_List.txt";
 
     public StudentFunction() {
+        File file = new File(filename);
+        File parent = file.getParentFile();
+        if (parent != null && !parent.exists()) {
+            parent.mkdirs();
+        }
         loadStudents();
     }
 
@@ -25,8 +30,8 @@ public class StudentFunction {
     // Check duplicate roll number while updating
     public boolean isDuplicateRollno(int rollno, int studentId) {
         for (StudentMain student : students) {
-            if (student.getRollno() == rollno &&
-                    student.getId() != studentId) {
+            if (student.getRollno() == rollno
+                    && student.getId() != studentId) {
                 return true;
             }
         }
